@@ -57,6 +57,7 @@ from dbt.exceptions import (
     InternalException,
     raise_duplicate_source_patch_name,
     warn_or_error,
+    CompilationException,
 )
 from dbt.node_types import NodeType
 from dbt.parser.base import SimpleParser
@@ -302,6 +303,14 @@ class SchemaParser(SimpleParser[GenericTestBlock, ParsedGenericTestNode]):
                 target.original_file_path, exc.msg, context
             )
             raise ParsingException(msg) from exc
+
+        except CompilationException as exc:
+            context = _trimmed(str(target))
+            msg = "Invalid generic test configuration given in {}:" "\n{}\n\t@: {}".format(
+                target.original_file_path, exc.msg, context
+            )
+            raise CompilationException(msg) from exc
+
         original_name = os.path.basename(target.original_file_path)
         compiled_path = get_pseudo_test_path(builder.compiled_name, original_name)
 

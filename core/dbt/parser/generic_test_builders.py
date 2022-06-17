@@ -270,12 +270,14 @@ class TestBuilder(Generic[Testable]):
                     # See https://github.com/dbt-labs/dbt-core/issues/4103
                     # and https://github.com/dbt-labs/dbt-core/issues/5294
                     raise_compiler_error(
-                        f'The "{key}" test config argument provided on the '
-                        f'"{column_name}" column of "{self.target.name}" '
-                        f'contains an undefined macro. The {e.msg}.\n\n'
-                        'The generic test configuration parser currently '
-                        'does not support using custom macros to populate '
-                        'configuration values.'
+                        f"\tThe {self.target.name}.{column_name} column's  "
+                        f'"{self.name}" test references an undefined \n'
+                        f"\tmacro in its {key} configuration argument. "
+                        f"The {e.msg}.\n"
+                        "\tPlease note that the generic test configuration"
+                        " parser currently does\n"
+                        "\tnot support using custom macros to"
+                        " populate configuration values\n"
                     )
 
             if value is not None:
