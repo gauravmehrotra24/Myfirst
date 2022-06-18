@@ -63,6 +63,12 @@ class TestIncrementalSchemaChange(DBTIntegrationTest):
         compare_target = 'incremental_sync_remove_only_target'
         self.run_twice_and_assert(select, compare_source, compare_target)
 
+    def run_incremental_sync_shorter_cols(self):
+        select = 'model_a incremental_sync_shorter_columns incremental_sync_shorter_target'
+        compare_source = 'incremental_sync_shorter_columns'
+        compare_target = 'incremental_sync_shorter_target'
+        self.run_twice_and_assert(select, compare_source, compare_target)
+
     def run_incremental_fail_on_schema_change(self):
         select = 'model_a incremental_fail'
         results_one = self.run_dbt(['run', '--models', select, '--full-refresh'])
