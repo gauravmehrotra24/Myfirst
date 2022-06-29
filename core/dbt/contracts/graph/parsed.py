@@ -820,7 +820,6 @@ class ParsedMetric(UnparsedBaseNode, HasUniqueID, HasFqn):
     depends_on: DependsOn = field(default_factory=DependsOn)
     refs: List[List[str]] = field(default_factory=list)
     metrics: List[List[str]] = field(default_factory=list)
-    config: SourceConfig = field(default_factory=SourceConfig)
     created_at: float = field(default_factory=lambda: time.time())
 
     @property
@@ -858,12 +857,6 @@ class ParsedMetric(UnparsedBaseNode, HasUniqueID, HasFqn):
     def same_time_grains(self, old: "ParsedMetric") -> bool:
         return self.time_grains == old.time_grains
 
-    def same_config(self, old: "ParsedMetric") -> bool:
-        return self.config.same_contents(
-            self.config.to_dict(),
-            old.config.to_dict(),
-        )
-
     def same_contents(self, old: Optional["ParsedMetric"]) -> bool:
         # existing when it didn't before is a change!
         # metadata/tags changes are not "changes"
@@ -880,7 +873,6 @@ class ParsedMetric(UnparsedBaseNode, HasUniqueID, HasFqn):
             and self.same_sql(old)
             and self.same_timestamp(old)
             and self.same_time_grains(old)
-            and self.same_config(old)
             and True
         )
 

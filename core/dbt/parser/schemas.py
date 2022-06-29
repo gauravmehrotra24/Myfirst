@@ -45,7 +45,6 @@ from dbt.contracts.graph.unparsed import (
     UnparsedMetric,
     UnparsedSourceDefinition,
 )
-from dbt.contracts.graph.model_config import SourceConfig
 from dbt.exceptions import (
     warn_invalid_patch,
     validator_error_message,
@@ -1037,7 +1036,6 @@ class MetricParser(YamlReader):
             filters=unparsed.filters,
             meta=unparsed.meta,
             tags=unparsed.tags,
-            config=SourceConfig(unparsed.config),
         )
 
         ctx = generate_parse_metrics(

@@ -649,23 +649,6 @@ def get_source_not_found_or_disabled_msg(
     )
 
 
-def get_metric_not_found_or_disabled_msg(
-    model,
-    target_name: str,
-    target_package: Optional[str],
-    disabled: Optional[bool] = None,
-) -> str:
-    if disabled is None:
-        reason = "was not found or is disabled"
-    elif disabled is True:
-        reason = "is disabled"
-    else:
-        reason = "was not found"
-    return _get_target_failure_msg(
-        model, target_name, target_package, include_path=True, reason=reason, target_kind="metric"
-    )
-
-
 def source_target_not_found(
     model, target_name: str, target_table_name: str, disabled: Optional[bool] = None
 ) -> NoReturn:
@@ -673,10 +656,20 @@ def source_target_not_found(
     raise_compiler_error(msg, model)
 
 
-def metric_target_not_found(
-    metric, target_name: str, target_package: Optional[str], disabled: Optional[bool] = None
-) -> NoReturn:
-    msg = get_metric_not_found_or_disabled_msg(metric, target_name, target_package, disabled)
+def get_metric_not_found_msg(
+    model,
+    target_name: str,
+    target_package: Optional[str],
+) -> str:
+    reason = "was not found"
+    return _get_target_failure_msg(
+        model, target_name, target_package, include_path=True, reason=reason, target_kind="metric"
+    )
+
+
+def metric_target_not_found(metric, target_name: str, target_package: Optional[str]) -> NoReturn:
+    msg = get_metric_not_found_msg(metric, target_name, target_package)
+
     raise_compiler_error(msg, metric)
 
 

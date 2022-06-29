@@ -281,13 +281,12 @@ class BaseMetricResolver(BaseResolver):
     def validate_args(self, name: str, package: Optional[str]):
         if not isinstance(name, str):
             raise CompilationException(
-                f"The name argument to metric() must be a string, got " f"{type(name)}"
+                f"The name argument to metric() must be a string, got {type(name)}"
             )
 
         if package is not None and not isinstance(package, str):
             raise CompilationException(
-                f"The package argument to metric() must be a string or None, got "
-                f"{type(package)}"
+                f"The package argument to metric() must be a string or None, got {type(package)}"
             )
 
     def __call__(self, *args: str) -> MetricReference:
@@ -573,7 +572,6 @@ class RuntimeMetricResolver(BaseMetricResolver):
                 self.model,
                 target_name,
                 target_package,
-                disabled=isinstance(target_metric, Disabled),
             )
 
         return ResolvedMetricReference(target_metric, self.manifest, self.Relation)
@@ -849,10 +847,6 @@ class ProviderContext(ManifestContext):
     @contextproperty
     def source(self) -> Callable:
         return self.provider.source(self.db_wrapper, self.model, self.config, self.manifest)
-
-    @contextproperty
-    def metric(self) -> Callable:
-        return self.provider.metric(self.db_wrapper, self.model, self.config, self.manifest)
 
     @contextproperty("config")
     def ctx_config(self) -> Config:
@@ -1373,15 +1367,6 @@ def generate_runtime_macro_context(
     return ctx.to_dict()
 
 
-def generate_runtime_metric_context(
-    metric: ParsedMetric,
-    config: RuntimeConfig,
-    manifest: Manifest,
-) -> Dict[str, Any]:
-    ctx = ProviderContext(metric, config, manifest, RuntimeProvider(), None)
-    return ctx.to_dict()
-
-
 class ExposureRefResolver(BaseResolver):
     def __call__(self, *args) -> str:
         if len(args) not in (1, 2):
@@ -1440,7 +1425,7 @@ class MetricRefResolver(BaseResolver):
         if not isinstance(name, str):
             raise ParsingException(
                 f"In a metrics section in {self.model.original_file_path} "
-                f"the name argument to ref() must be a string"
+                "the name argument to ref() must be a string"
             )
 
 

@@ -458,7 +458,6 @@ class UnparsedMetric(dbtClassMixin, Replaceable):
     filters: List[MetricFilter] = field(default_factory=list)
     meta: Dict[str, Any] = field(default_factory=dict)
     tags: List[str] = field(default_factory=list)
-    config: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def validate(cls, data):

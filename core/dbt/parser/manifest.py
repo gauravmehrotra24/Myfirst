@@ -953,22 +953,16 @@ def invalid_source_fail_unless_test(node, target_name, target_table_name, disabl
         source_target_not_found(node, target_name, target_table_name, disabled=disabled)
 
 
-def invalid_metric_fail_unless_test(node, target_metric_name, target_metric_package, disabled):
+def invalid_metric_fail_unless_test(node, target_metric_name, target_metric_package):
 
     if node.resource_type == NodeType.Test:
-        msg = get_target_not_found_or_disabled_msg(
-            node, target_metric_name, target_metric_package, disabled
-        )
-        if disabled:
-            fire_event(InvalidRefInTestNode(msg=msg))
-        else:
-            warn_or_error(msg, log_fmt=warning_tag("{}"))
+        msg = get_target_not_found_or_disabled_msg(node, target_metric_name, target_metric_package)
+        warn_or_error(msg, log_fmt=warning_tag("{}"))
     else:
         metric_target_not_found(
             node,
             target_metric_name,
             target_metric_package,
-            disabled=disabled,
         )
 
 
@@ -1075,6 +1069,7 @@ def _process_docs_for_metrics(context: Dict[str, Any], metric: ParsedMetric) -> 
     metric.description = get_rendered(metric.description, context)
 
 
+# TODO: this isn't actually referenced anywhere?
 def _process_derived_metrics(context: Dict[str, Any], metric: ParsedMetric) -> None:
     metric.description = get_rendered(metric.description, context)
 
@@ -1166,7 +1161,7 @@ def _process_metrics_for_node(
 ):
     """Given a manifest and a node in that manifest, process its metrics"""
     for metric in node.metrics:
-        target_metric: Optional[Union[Disabled, ParsedMetric]] = None
+        target_metric: Optional[ParsedMetric] = None
         target_metric_name: str
         target_metric_package: Optional[str] = None
 
@@ -1187,15 +1182,13 @@ def _process_metrics_for_node(
             node.package_name,
         )
 
-        if target_metric is None or isinstance(target_metric, Disabled):
+        if target_metric is None:
             # This may raise. Even if it doesn't, we don't want to add
             # this node to the graph b/c there is no destination node
-            node.config.enabled = False
             invalid_metric_fail_unless_test(
                 node,
                 target_metric_name,
                 target_metric_package,
-                disabled=(isinstance(target_metric, Disabled)),
             )
 
             continue

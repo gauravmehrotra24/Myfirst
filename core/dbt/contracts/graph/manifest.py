@@ -467,7 +467,7 @@ class Disabled(Generic[D]):
     target: D
 
 
-MaybeMetricNode = Optional[Union[ParsedMetric, Disabled[ParsedMetric]]]
+MaybeMetricNode = Optional[ParsedMetric]
 
 
 MaybeDocumentation = Optional[ParsedDocumentation]
@@ -619,9 +619,7 @@ class Manifest(MacroMethods, DataClassMessagePackMixin, dbtClassMixin):
     flat_graph: Dict[str, Any] = field(default_factory=dict)
     state_check: ManifestStateCheck = field(default_factory=ManifestStateCheck)
     source_patches: MutableMapping[SourceKey, SourcePatch] = field(default_factory=dict)
-    disabled: MutableMapping[str, List[Union[CompileResultNode, ParsedMetric]]] = field(
-        default_factory=dict
-    )
+    disabled: MutableMapping[str, List[CompileResultNode]] = field(default_factory=dict)
     env_vars: MutableMapping[str, str] = field(default_factory=dict)
 
     _doc_lookup: Optional[DocLookup] = field(
@@ -963,20 +961,12 @@ class Manifest(MacroMethods, DataClassMessagePackMixin, dbtClassMixin):
         node_package: str,
     ) -> MaybeMetricNode:
         metric: Optional[ParsedMetric] = None
-        disabled: Optional[List[ParsedMetric]] = None
 
         candidates = _search_packages(current_project, node_package, target_metric_package)
         for pkg in candidates:
             metric = self.metric_lookup.find(target_metric_name, pkg, self)
             if metric is not None:
-                # TODO: Skip if the metric is disabled!
                 return metric
-
-            if disabled is None:
-                disabled = self.disabled_lookup.find(target_metric_name, target_metric_package)
-
-        if disabled:
-            return Disabled(disabled[0])
         return None
 
     # Called by DocsRuntimeContext.doc
@@ -1091,14 +1081,11 @@ class Manifest(MacroMethods, DataClassMessagePackMixin, dbtClassMixin):
         source_file.exposures.append(exposure.unique_id)
 
     def add_metric(self, source_file: SchemaSourceFile, metric: ParsedMetric):
-        if not metric.config.enabled:
-            self.add_disabled_nofile(metric)
-        else:
-            _check_duplicates(metric, self.metrics)
-            self.metrics[metric.unique_id] = metric
-            source_file.metrics.append(metric.unique_id)
+        _check_duplicates(metric, self.metrics)
+        self.metrics[metric.unique_id] = metric
+        source_file.metrics.append(metric.unique_id)
 
-    def add_disabled_nofile(self, node: Union[CompileResultNode, ParsedMetric]):
+    def add_disabled_nofile(self, node: CompileResultNode):
         # There can be multiple disabled nodes for the same unique_id
         if node.unique_id in self.disabled:
             self.disabled[node.unique_id].append(node)

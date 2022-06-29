@@ -689,7 +689,6 @@ class TestUnparsedMetric(ContractTestCase):
             'meta': {
                 'is_okr': True
             },
-            'config': {},
         }
 
     def get_ok_expression_dict(self):
@@ -706,7 +705,6 @@ class TestUnparsedMetric(ContractTestCase):
             'meta': {
                 'is_okr': True
             },
-            'config': {},
         }
 
     def test_ok(self):
@@ -726,7 +724,6 @@ class TestUnparsedMetric(ContractTestCase):
                 operator="=",
             )],
             meta={'is_okr': True},
-            config={}
         )
         dct = self.get_ok_dict()
         self.assert_symmetric(metric, dct)
@@ -745,7 +742,6 @@ class TestUnparsedMetric(ContractTestCase):
             time_grains=['day', 'week', 'month'],
             dimensions=[],
             meta={'is_okr': True},
-            config={}
         )
         dct = self.get_ok_expression_dict()
         self.assert_symmetric(metric, dct)
