@@ -3,7 +3,7 @@ from dbt.contracts.util import AdditionalPropertiesMixin, Mergeable, Replaceable
 
 # trigger the PathEncoder
 import dbt.helper_types  # noqa:F401
-from dbt.exceptions import CompilationException
+from dbt.exceptions import CompilationException, ParsingException
 
 from dbt.dataclass_schema import dbtClassMixin, StrEnum, ExtensibleDbtClassMixin, ValidationError
 
@@ -446,6 +446,7 @@ class MetricFilter(dbtClassMixin, Replaceable):
 class UnparsedMetric(dbtClassMixin, Replaceable):
     # TODO : verify that this disallows metric names with spaces
     # TODO: fix validation that you broke :p
+    # name: Identifier
     name: str
     label: str
     type: str
@@ -461,7 +462,11 @@ class UnparsedMetric(dbtClassMixin, Replaceable):
 
     @classmethod
     def validate(cls, data):
-        super().validate(data)
+        # super().validate(data)
+        # TODO: putting this back for now to get tests passing.  Do we want to implement name: Identifier?
+        super(UnparsedMetric, cls).validate(data)
+        if "name" in data and " " in data["name"]:
+            raise ParsingException(f"Metrics name '{data['name']}' cannot contain spaces")
 
         # TODO: Expressions _cannot_ have `model` properties
         if data.get("model") is None and data.get("type") != "expression":
