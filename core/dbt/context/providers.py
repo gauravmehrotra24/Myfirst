@@ -848,6 +848,10 @@ class ProviderContext(ManifestContext):
     def source(self) -> Callable:
         return self.provider.source(self.db_wrapper, self.model, self.config, self.manifest)
 
+    @contextproperty
+    def metric(self) -> Callable:
+        return self.provider.metric(self.db_wrapper, self.model, self.config, self.manifest)
+
     @contextproperty("config")
     def ctx_config(self) -> Config:
         """The `config` variable exists to handle end-user configuration for
