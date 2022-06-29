@@ -1,7 +1,7 @@
 import pytest
 
 from dbt.tests.util import run_dbt, get_manifest
-from dbt.exceptions import ParsingException, ValidationException
+from dbt.exceptions import ParsingException
 
 from tests.functional.metrics.fixture_metrics import mock_purchase_data_csv
 
@@ -104,6 +104,7 @@ metrics:
 
 """
 
+
 class TestInvalidRefMetrics:
     @pytest.fixture(scope="class")
     def models(self):
@@ -121,6 +122,7 @@ class TestInvalidRefMetrics:
         # initial run
         with pytest.raises(ParsingException):
             run_dbt(["run"])
+
 
 invalid_metrics__missing_model_yml = """
 version: 2
@@ -153,6 +155,7 @@ metrics:
         value: 'true'
 
 """
+
 
 class TestInvalidMetricMissingModel:
     @pytest.fixture(scope="class")
@@ -304,6 +307,7 @@ metrics:
         - payment_type
 """
 
+
 class TestInvalidExpressionMetrics:
     @pytest.fixture(scope="class")
     def models(self):
@@ -401,11 +405,14 @@ class TestExpressionMetric:
             "metric.test.sum_order_revenue",
         ]
         assert sorted(downstream_model.config["metric_names"]) == metric_names
-        
+
         # make sure the 'expression' metric depends on the two upstream metrics
         expression_metric = manifest.metrics["metric.test.average_order_value"]
         assert sorted(expression_metric.metrics) == [["count_orders"], ["sum_order_revenue"]]
-        assert sorted(expression_metric.depends_on.nodes) == ["metric.test.count_orders", "metric.test.sum_order_revenue"]
+        assert sorted(expression_metric.depends_on.nodes) == [
+            "metric.test.count_orders",
+            "metric.test.sum_order_revenue",
+        ]
 
         # actually compile
         results = run_dbt(["compile", "--select", "downstream_model"])
