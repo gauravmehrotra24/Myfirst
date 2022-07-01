@@ -76,8 +76,6 @@ class BaseIncrementalNotSchemaChange:
             run_dbt(["run", "--select", "incremental_not_schema_change"]).results[0].status
         )
 
-        print(run_result)
-
         assert run_result == RunStatus.Success
 
 
